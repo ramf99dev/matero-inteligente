@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1097818267041",
+    "project_id": "gotagota-8afda",
+    "storage_bucket": "gotagota-8afda.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097818267041:android:d8e802b8f364506c683fe0",
+        "android_client_info": {
+          "package_name": "com.randymolina.gotagota"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVT-mDbK_Wqg0zruuELhRv5wtgqu_ZLnI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

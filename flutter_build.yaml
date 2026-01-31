@@ -1,0 +1,6 @@
+build-ios:
+  ios-debug:
+    flavor: debug
+    target: lib/main.dart
+    device-id: "00008110-00061936220A401E"
+    codesign: false
