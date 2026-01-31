@@ -48,5 +48,5 @@ app.*.map.json
 #Scripts
 scripts/verify_security.sh 
 
-GITHUB_READY.md
+GITHUB_READY.md 
 
