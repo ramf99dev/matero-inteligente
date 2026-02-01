@@ -1,7 +1,4 @@
-plugins {
-    // ...
-    id("com.google.gms.google-services") version "4.4.2" apply false 
-}
+
 allprojects {
     repositories {
         google()
@@ -20,7 +17,7 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
-    project.evaluationDependsOn(":app")
+project.evaluationDependsOn(":app")
 }
 
 tasks.register<Delete>("clean") {
