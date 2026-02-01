@@ -31,7 +31,7 @@ class MateroService {
     }
   }
 
-  // --- PLANTAS ---
+  // PLANTAS
 
   Future<List<Plant>> getPlants() async {
     try {
@@ -105,7 +105,7 @@ class MateroService {
     }
   }
 
-  // --- LECTURA DE DATOS ---
+  // LECTURA DE DATOS
 
   Future<void> saveSensorData(
       int plantId, Map<String, dynamic> sensorData) async {
@@ -171,15 +171,5 @@ class MateroService {
     } else {
       return '✅ ESTADO ÓPTIMO - Todo en orden';
     }
-  }
-
-  Map<String, dynamic> generateMockSensorData() {
-    return {
-      'temperature': 20 + (DateTime.now().millisecond % 15).toDouble(),
-      'humidity': 30 + (DateTime.now().millisecond % 40).toDouble(),
-      'soil_moisture': 10 + (DateTime.now().millisecond % 70),
-      'light_level': 500 + (DateTime.now().millisecond % 800),
-      'timestamp': DateTime.now().toIso8601String(),
-    };
   }
 }

@@ -38,8 +38,9 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
-              body:
-                  Center(child: CircularProgressIndicator(color: Colors.green)),
+              body: Center(
+                  child: CircularProgressIndicator(
+                      color: Color.fromARGB(255, 44, 110, 46))),
             );
           }
 

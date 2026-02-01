@@ -61,7 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // LÓGICA: CONFIGURAR WIFI (WiFiManager)
+  // CONFIGURAR WIFI (WiFiManager)
   Future<void> _openWifiSetup() async {
     final Uri url = Uri.parse(PlantThresholds.wifiSetupURL);
 
@@ -94,8 +94,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 await launchUrl(url, mode: LaunchMode.externalApplication);
               } else {
                 if (mounted) {
-                  _showTopNotification(
-                      'No se pudo abrir el navegador', Colors.red);
+                  _showTopNotification('No se pudo abrir el navegador',
+                      const Color.fromARGB(255, 162, 37, 28));
                 }
               }
             },
@@ -113,11 +113,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await _materoService.waterPlant(_selectedPlant!.id!);
       if (mounted) {
         _showTopNotification('💧 Planta regada correctamente', Colors.blue);
-        _loadPlants(); // Reload to update last_watered
+        _loadPlants(); // Recargar para actualizar last_watered
       }
     } catch (e) {
       if (mounted) {
-        _showTopNotification('❌ Error al regar: $e', Colors.red);
+        _showTopNotification(
+            '❌ Error al regar: $e', const Color.fromARGB(255, 152, 41, 33));
       }
     }
   }

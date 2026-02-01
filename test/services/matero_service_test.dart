@@ -63,43 +63,5 @@ void main() {
         expect(excess, contains('EXCESO DE AGUA'));
       });
     });
-
-    group('generateMockSensorData', () {
-      test('generates data with correct structure', () {
-        final data = service.generateMockSensorData();
-
-        expect(data, contains('temperature'));
-        expect(data, contains('humidity'));
-        expect(data, contains('soil_moisture'));
-        expect(data, contains('light_level'));
-        expect(data, contains('timestamp'));
-      });
-
-      test('generates data within expected ranges', () {
-        final data = service.generateMockSensorData();
-
-        expect(data['temperature'], greaterThanOrEqualTo(20.0));
-        expect(data['temperature'], lessThanOrEqualTo(35.0));
-
-        expect(data['humidity'], greaterThanOrEqualTo(30.0));
-        expect(data['humidity'], lessThanOrEqualTo(70.0));
-
-        expect(data['soil_moisture'], greaterThanOrEqualTo(10));
-        expect(data['soil_moisture'], lessThanOrEqualTo(80));
-
-        expect(data['light_level'], greaterThanOrEqualTo(500));
-        expect(data['light_level'], lessThanOrEqualTo(1300));
-      });
-
-      test('generates valid timestamp', () {
-        final data = service.generateMockSensorData();
-        final timestamp = DateTime.parse(data['timestamp']);
-
-        expect(
-            timestamp.isBefore(DateTime.now().add(Duration(seconds: 1))), true);
-        expect(timestamp.isAfter(DateTime.now().subtract(Duration(seconds: 1))),
-            true);
-      });
-    });
   });
 }

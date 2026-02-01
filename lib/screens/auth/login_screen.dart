@@ -35,13 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text.trim(),
         _passwordController.text.trim(),
       );
-      // Navigation is handled by auth state listener in main.dart
+      // La navegación es manejada por el llamador del estado de autenticación en main.dart
     } on AuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.message),
-            backgroundColor: Colors.red,
+            backgroundColor: const Color.fromARGB(255, 178, 43, 34),
           ),
         );
       }
@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Error inesperado al iniciar sesión'),
-            backgroundColor: Colors.red,
+            backgroundColor: Color.fromARGB(255, 197, 48, 37),
           ),
         );
       }
@@ -75,12 +75,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Icon(Icons.eco, size: 80, color: Colors.green),
                   const SizedBox(height: 24),
                   const Text(
-                    'Bienvenido a\nMatero Inteligente',
+                    'Bienvenido a GotaGota',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      color: Color.fromARGB(255, 51, 121, 54),
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -133,11 +133,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: const Color.fromARGB(255, 32, 92, 34),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(9),
                       ),
                     ),
                     child: _isLoading
