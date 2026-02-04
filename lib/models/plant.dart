@@ -7,8 +7,9 @@ class Plant {
   final String? imageUrl;
   final String? description;
   final DateTime? lastWatered;
-  final int wateringFrequency; // días entre riegos
+  final int wateringFrequency;
   final DateTime createdAt;
+  final String? deviceId; // ID del dispositivo ESP32 vinculado
 
   Plant({
     this.id,
@@ -19,6 +20,7 @@ class Plant {
     this.lastWatered,
     int? wateringFrequency,
     DateTime? createdAt,
+    this.deviceId,
   })  : wateringFrequency =
             wateringFrequency ?? PlantThresholds.defaultWateringFrequencyDays,
         createdAt = createdAt ?? DateTime.now();
@@ -38,6 +40,7 @@ class Plant {
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
+      deviceId: json['device_id'] as String?,
     );
   }
 
@@ -51,6 +54,7 @@ class Plant {
       if (lastWatered != null) 'last_watered': lastWatered!.toIso8601String(),
       'watering_frequency': wateringFrequency,
       'created_at': createdAt.toIso8601String(),
+      if (deviceId != null) 'device_id': deviceId,
     };
   }
 
@@ -84,6 +88,7 @@ class Plant {
     DateTime? lastWatered,
     int? wateringFrequency,
     DateTime? createdAt,
+    String? deviceId,
   }) {
     return Plant(
       id: id ?? this.id,
@@ -94,6 +99,7 @@ class Plant {
       lastWatered: lastWatered ?? this.lastWatered,
       wateringFrequency: wateringFrequency ?? this.wateringFrequency,
       createdAt: createdAt ?? this.createdAt,
+      deviceId: deviceId ?? this.deviceId,
     );
   }
 

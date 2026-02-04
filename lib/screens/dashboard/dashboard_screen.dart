@@ -7,6 +7,7 @@ import '../../models/sensor_reading.dart';
 import '../../services/matero_service.dart';
 import '../../config/constants.dart';
 import '../plants/add_plant_screen.dart';
+import '../devices/qr_scanner_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -538,10 +539,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ));
   }
 
+  void _linkDevice() async {
+    if (_selectedPlant == null) return;
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const QRScannerScreen()),
+      );
+
+      if (result != null) {
+        await _materoService.linkDeviceToPlant(_selectedPlant!.id!, result);
+        if (mounted) {
+          _showTopNotification(
+              "✅ Vinculado al dispositivo: $result", Colors.green);
+          _loadPlants(); // Recargar para actualizar el device_id de la planta seleccionada
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showTopNotification("❌ Error vinculando: $e", Colors.red);
+      }
+    }
+  }
+
+  // ... (existing methods)
+
   // StreamBuilder para datos en tiempo real
   Widget _buildSensorDataCard() {
     return StreamBuilder<SensorReading?>(
-      stream: _materoService.getRealtimeData(_selectedPlant!.id!),
+      stream: _materoService.getRealtimeData(_selectedPlant!.deviceId),
       builder: (context, snapshot) {
         final bool isLoading =
             snapshot.connectionState == ConnectionState.waiting;
@@ -588,7 +614,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                if (_currentSensorData != null) ...[
+                if (_selectedPlant!.deviceId == null) ...[
+                  Column(
+                    children: [
+                      const Icon(Icons.link_off,
+                          size: 40, color: Colors.orange),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Planta no vinculada a un Matero',
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: _linkDevice,
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Vincular Matero'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  )
+                ] else if (_currentSensorData != null) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
