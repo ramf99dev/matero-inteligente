@@ -53,8 +53,6 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
       if (image != null) {
         setState(() {
           _selectedImageFile = File(image.path);
-          // Clear URL controller to prioritize file upload, or keep it as fallback?
-          // We will update the URL controller AFTER upload.
         });
       }
     } catch (e) {
@@ -71,16 +69,13 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Upload new image if selected
       if (_selectedImageFile != null) {
         final uploadedUrl =
             await _materoService.uploadPlantImage(_selectedImageFile!);
         _imageUrlController.text = uploadedUrl;
       }
 
-      // 2. Save/Update Plant
       if (widget.plant == null) {
-        // Create
         await _materoService.addPlant(
           _nameController.text.trim(),
           _imageUrlController.text.trim().isEmpty
@@ -98,7 +93,7 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
           );
         }
       } else {
-        // Update
+        // ACTUALIZAR PLANTA
         await _materoService.updatePlant(
           widget.plant!['id'],
           _nameController.text.trim(),
@@ -119,7 +114,7 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
       }
 
       if (mounted) {
-        Navigator.pop(context, true); // Return true to trigger refresh
+        Navigator.pop(context, true); // REGRESAR
       }
     } catch (e) {
       if (mounted) {
@@ -138,8 +133,11 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Editar Planta 🌱' : 'Agregar nueva planta 🌱'),
-        backgroundColor: Colors.green,
+        title: Text(
+          isEditing ? 'Editar Planta 🌱' : 'Agregar nueva planta 🌱',
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color.fromARGB(255, 38, 94, 40),
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -157,7 +155,7 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Image Preview Area
+              // Area de Previsualización de Imagen
               Center(
                 child: GestureDetector(
                   onTap: () => _showImageSourceModal(context),
@@ -219,7 +217,8 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
                   labelText: 'Nombre de la planta',
                   hintText: 'Ej. Orquídea, Bonsai...',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.local_florist),
+                  prefixIcon: Icon(Icons.local_florist,
+                      color: Color.fromARGB(255, 42, 98, 44)),
                 ),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Requerido' : null,
@@ -231,13 +230,14 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
                   labelText: 'Descripción (Opcional)',
                   hintText: 'Ej. Regar cada 3 días, luz indirecta...',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
+                  prefixIcon: Icon(Icons.description,
+                      color: Color.fromARGB(255, 42, 98, 44)),
                 ),
                 maxLines: 2,
               ),
               const SizedBox(height: 16),
 
-              // Optional URL field (hidden or secondary if image is picked)
+              // Opcional URL
               ExpansionTile(
                 title: const Text('Ingresar URL manualmente'),
                 children: [
@@ -247,9 +247,11 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
                       labelText: 'URL de la imagen',
                       hintText: 'https://...',
                       border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.link),
+                      prefixIcon: Icon(Icons.link,
+                          color: Color.fromARGB(255, 42, 98, 44)),
                     ),
-                    onChanged: (val) => setState(() {}), // Update preview
+                    onChanged: (val) =>
+                        setState(() {}), // Actualiza la previsualización
                   ),
                 ],
               ),
@@ -258,7 +260,7 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _savePlant,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: const Color.fromARGB(255, 42, 98, 44),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

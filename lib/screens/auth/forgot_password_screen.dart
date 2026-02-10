@@ -68,27 +68,40 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recuperar Contraseña'),
-        foregroundColor: Colors.green,
+        title: const Text('Recuperar Contraseña',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Color.fromARGB(255, 51, 121, 54),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(height: 48),
+            Image.asset(
+              'assets/icon/iconlogin.png',
+              height: 100,
+            ),
+            const SizedBox(height: 24),
             const Text(
               'Ingresa tu correo electrónico para recibir un enlace de recuperación.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Correo Electrónico',
-                prefixIcon: Icon(Icons.email_outlined),
-                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email_outlined,
+                    color: Color.fromARGB(255, 51, 121, 54)),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    width: 2,
+                    color: Color.fromARGB(255, 51, 121, 54),
+                  ),
+                ),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
@@ -96,7 +109,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ElevatedButton(
               onPressed: _isLoading ? null : _resetPassword,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+                backgroundColor: Color.fromARGB(255, 51, 121, 54),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(

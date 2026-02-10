@@ -7,6 +7,7 @@ import '../../models/sensor_reading.dart';
 import '../../services/matero_service.dart';
 import '../../config/constants.dart';
 import '../plants/add_plant_screen.dart';
+import '../devices/qr_scanner_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -287,10 +288,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppConstants.appName),
-        backgroundColor: const Color.fromARGB(255, 42, 126, 45),
+        title: Text(
+          AppConstants.appName,
+          style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color.fromARGB(255, 43, 124, 45),
         foregroundColor: const Color.fromARGB(255, 237, 235, 235),
         elevation: 2,
+        leading: Image.asset(
+          'assets/icon/iconlogin.png',
+          height: 14,
+          width: 14,
+          fit: BoxFit.contain,
+        ),
         actions: [
           // BOTON PARA CONFIGURAR WIFI
           IconButton(
@@ -315,7 +325,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : _buildDashboardContent(),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddPlant,
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromARGB(255, 36, 102, 37),
         tooltip: 'Agregar Nueva Planta',
         child: const Icon(Icons.add, color: Color.fromARGB(255, 253, 249, 0)),
       ),
@@ -345,7 +355,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.add),
             label: const Text('Agregar mi primer Matero'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: Color.fromARGB(255, 36, 102, 37),
               foregroundColor: Colors.white,
             ),
           ),
@@ -538,10 +548,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ));
   }
 
+  void _linkDevice() async {
+    if (_selectedPlant == null) return;
+    try {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const QRScannerScreen()),
+      );
+
+      if (result != null) {
+        await _materoService.linkDeviceToPlant(_selectedPlant!.id!, result);
+        if (mounted) {
+          _showTopNotification(
+              "✅ Vinculado al dispositivo: $result", Colors.green);
+          _loadPlants(); // Recargar para actualizar el device_id de la planta seleccionada
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showTopNotification("❌ Error vinculando: $e", Colors.red);
+      }
+    }
+  }
+
+  // ... (existing methods)
+
   // StreamBuilder para datos en tiempo real
   Widget _buildSensorDataCard() {
     return StreamBuilder<SensorReading?>(
-      stream: _materoService.getRealtimeData(_selectedPlant!.id!),
+      stream: _materoService.getRealtimeData(_selectedPlant!.deviceId),
       builder: (context, snapshot) {
         final bool isLoading =
             snapshot.connectionState == ConnectionState.waiting;
@@ -588,7 +623,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                if (_currentSensorData != null) ...[
+                if (_selectedPlant!.deviceId == null) ...[
+                  Column(
+                    children: [
+                      const Icon(Icons.link_off,
+                          size: 40, color: Colors.orange),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Planta no vinculada a un Matero',
+                        style: TextStyle(
+                            color: Colors.grey, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton.icon(
+                        onPressed: _linkDevice,
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Vincular Matero'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  )
+                ] else if (_currentSensorData != null) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [

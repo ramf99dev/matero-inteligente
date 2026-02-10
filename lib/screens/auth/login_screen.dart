@@ -72,7 +72,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.eco, size: 80, color: Colors.green),
+                  Image.asset(
+                    'assets/icon/iconlogin.png',
+                    height: 130,
+                  ),
                   const SizedBox(height: 24),
                   const Text(
                     'Bienvenido a GotaGota',
@@ -83,13 +86,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: Color.fromARGB(255, 51, 121, 54),
                     ),
                   ),
+                  const Text(
+                    'Monitoreo Inteligente de plantas',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Color.fromARGB(255, 32, 92, 34),
+                    ),
+                  ),
                   const SizedBox(height: 48),
                   TextFormField(
                     controller: _emailController,
                     decoration: const InputDecoration(
                       labelText: 'Correo Electrónico',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email_outlined,
+                          color: Color.fromARGB(255, 32, 92, 34)),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 2,
+                          color: Color.fromARGB(255, 32, 92, 34),
+                        ),
+                      ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -104,8 +122,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     decoration: const InputDecoration(
                       labelText: 'Contraseña',
-                      prefixIcon: Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.lock_outline,
+                          color: Color.fromARGB(255, 32, 92, 34)),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 2,
+                          color: Color.fromARGB(255, 32, 92, 34),
+                        ),
+                      ),
                     ),
                     obscureText: true,
                     validator: (value) {

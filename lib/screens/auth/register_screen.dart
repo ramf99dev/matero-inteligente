@@ -75,7 +75,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         title: const Text('Crear Cuenta'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.green,
+        titleTextStyle: TextStyle(
+          color: Color.fromARGB(255, 32, 92, 34),
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       body: SafeArea(
         child: Center(
@@ -84,16 +88,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const SizedBox(height: 12),
+                  Image.asset(
+                    'assets/icon/iconlogin.png',
+                    height: 100,
+                  ),
                   const Text(
                     'Únete a\nMatero Inteligente',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                      color: Color.fromARGB(255, 32, 92, 34),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -101,8 +110,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _emailController,
                     decoration: const InputDecoration(
                       labelText: 'Correo Electrónico',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: Color.fromARGB(255, 32, 92, 34),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 32, 92, 34),
+                        ),
+                      ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -117,8 +133,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _passwordController,
                     decoration: const InputDecoration(
                       labelText: 'Contraseña',
-                      prefixIcon: Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: Color.fromARGB(255, 32, 92, 34),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 32, 92, 34),
+                        ),
+                      ),
                     ),
                     obscureText: true,
                     validator: (value) {
@@ -136,8 +159,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _confirmPasswordController,
                     decoration: const InputDecoration(
                       labelText: 'Confirmar Contraseña',
-                      prefixIcon: Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: Color.fromARGB(255, 32, 92, 34),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 32, 92, 34),
+                        ),
+                      ),
                     ),
                     obscureText: true,
                     validator: (value) {
@@ -151,7 +181,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ElevatedButton(
                     onPressed: _isLoading ? null : _register,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Color.fromARGB(255, 32, 92, 34),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

@@ -26,7 +26,7 @@ class PlantThresholds {
 }
 
 class AppConstants {
-  static const String appName = 'GotaGota 🌱';
+  static const String appName = 'GotaGota';
   static const String appDescription =
       'Matero Inteligente - Sistema de Monitoreo';
 
