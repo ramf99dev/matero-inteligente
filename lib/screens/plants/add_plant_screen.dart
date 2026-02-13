@@ -118,8 +118,28 @@ class _AddPlantScreenState extends State<AddPlantScreen> {
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = '❌ Error: $e';
+
+        // Mensajes más específicos según el error
+        if (e.toString().contains('not found') ||
+            e.toString().contains('404')) {
+          errorMessage =
+              '❌ Error: El bucket de imágenes no existe. Contacta al administrador.';
+        } else if (e.toString().contains('permission') ||
+            e.toString().contains('403')) {
+          errorMessage = '❌ Error: No tienes permisos para subir imágenes.';
+        } else if (e.toString().contains('autenticado')) {
+          errorMessage = '❌ Error: Debes iniciar sesión nuevamente.';
+        } else if (e.toString().contains('existe')) {
+          errorMessage = '❌ Error: No se pudo acceder al archivo de imagen.';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
         );
       }
     } finally {

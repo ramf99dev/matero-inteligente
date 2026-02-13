@@ -20,6 +20,9 @@ dependencies:
   url_launcher: ^6.2.0 # Para abrir URLs
   flutter_dotenv: ^5.1.0 # Para variables de entorno
   intl: ^0.19.0 # Para formateo de fechas
+  figma_squircle: ^0.6.3
+  flutter_local_notifications: ^18.0.1 # Para notificaciones nativas
+  google_generative_ai: ^0.4.0 # Para consultas de IA sobre plantas
 dev_dependencies:
   flutter_test:
     sdk: flutter

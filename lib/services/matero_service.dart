@@ -10,20 +10,43 @@ class MateroService {
 
   Future<String> uploadPlantImage(File imageFile) async {
     try {
+      AppLogger.info('📤 Iniciando subida de imagen...');
+
       final user = _supabase.auth.currentUser;
-      if (user == null) throw Exception('Usuario no autenticado');
+      if (user == null) {
+        throw Exception('Usuario no autenticado');
+      }
+
+      // Verificar que el archivo existe
+      if (!await imageFile.exists()) {
+        throw Exception('El archivo de imagen no existe');
+      }
+
+      // Leer el archivo como bytes
+      final bytes = await imageFile.readAsBytes();
+      final fileSize = bytes.length;
+      AppLogger.info('📦 Tamaño del archivo: ${fileSize / 1024} KB');
 
       final fileName =
           '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-      await _supabase.storage.from(AppConstants.plantImagesBucket).upload(
+
+      AppLogger.info('📁 Subiendo a: $fileName');
+
+      // Subir los bytes en lugar del File directamente
+      await _supabase.storage.from(AppConstants.plantImagesBucket).uploadBinary(
             fileName,
-            imageFile,
-            fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+            bytes,
+            fileOptions: const FileOptions(
+              cacheControl: '3600',
+              upsert: false,
+            ),
           );
 
       final publicUrl = _supabase.storage
           .from(AppConstants.plantImagesBucket)
           .getPublicUrl(fileName);
+
+      AppLogger.info('✅ Imagen subida exitosamente: $publicUrl');
       return publicUrl;
     } catch (e) {
       AppLogger.error('❌ Error subiendo imagen', e);
@@ -31,7 +54,7 @@ class MateroService {
     }
   }
 
-  // PLANTAS
+  // PLANTA
 
   Future<List<Plant>> getPlants() async {
     try {
@@ -138,12 +161,6 @@ class MateroService {
 
   Future<void> saveSensorData(
       int plantId, Map<String, dynamic> sensorData) async {
-    // Legacy method: keeping it but it might not be used if ESP32 writes directly
-    // Or we should update it to include device_id if known?
-    // For now leaving as is or adapting?
-    // The user instruction "Change in your function _fetchRealSensorData" implies READING. It didn't explicitly ask to change WRITING here.
-    // But if we write from App (simulator?), we might need device_id.
-    // Let's leave it for now to avoid breaking existing simulation if any.
     try {
       final dataToSave = Map<String, dynamic>.from(sensorData);
       dataToSave['plant_id'] = plantId;
@@ -156,15 +173,11 @@ class MateroService {
     }
   }
 
-  // Stream de datos en tiempo real filtrado por device_id
-  Stream<SensorReading?> getRealtimeData(String? deviceId) {
-    if (deviceId == null) {
-      return Stream.value(null);
-    }
+  // Stream de datos en tiempo real - TODOS LOS DATOS DEL ESP32
+  Stream<SensorReading?> getRealtimeData() {
     return _supabase
         .from(AppConstants.readingsTable)
         .stream(primaryKey: ['id'])
-        .eq('device_id', deviceId)
         .order('created_at', ascending: false)
         .limit(1)
         .map((data) {
@@ -177,14 +190,12 @@ class MateroService {
         });
   }
 
-  // Obtener última lectura filtrado por device_id
-  Future<SensorReading?> getLatestReading(String? deviceId) async {
-    if (deviceId == null) return null;
+  // Obtener última lectura - TODOS LOS DATOS
+  Future<SensorReading?> getLatestReading() async {
     try {
       final response = await _supabase
           .from(AppConstants.readingsTable)
           .select()
-          .eq('device_id', deviceId)
           .order('created_at', ascending: false)
           .limit(1)
           .maybeSingle();

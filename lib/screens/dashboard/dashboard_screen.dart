@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:matero_fixed/utils/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/plant.dart';
 import '../../models/sensor_reading.dart';
 import '../../services/matero_service.dart';
+import '../../services/notification_service.dart';
+import '../../services/plant_ai_service.dart';
 import '../../config/constants.dart';
 import '../plants/add_plant_screen.dart';
-import '../devices/qr_scanner_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,17 +20,41 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final MateroService _materoService = MateroService();
+  final NotificationService _notificationService = NotificationService();
+  final PlantAIService _plantAIService = PlantAIService();
 
   List<Plant> _plants = [];
   Plant? _selectedPlant;
   bool _isLoadingPlants = true;
 
   SensorReading? _currentSensorData;
+  String? _previousRecommendation;
 
   @override
   void initState() {
     super.initState();
+    _notificationService.initialize();
+    _plantAIService.initialize();
     _loadPlants();
+    _loadInitialSensorData();
+  }
+
+  // Cargar datos iniciales del sensor
+  Future<void> _loadInitialSensorData() async {
+    try {
+      final initialData = await _materoService.getLatestReading();
+      if (initialData != null && mounted) {
+        setState(() {
+          _currentSensorData = initialData;
+          _previousRecommendation = _materoService.getRecommendation(
+            initialData.soilMoisture,
+            initialData.temperature,
+          );
+        });
+      }
+    } catch (e) {
+      AppLogger.error('Error cargando datos iniciales', e);
+    }
   }
 
   //CARGA DE PLANTAS
@@ -182,7 +208,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Color get _recommendationColor {
-    final recommendation = _currentRecommendation;
+    return _getColorForRecommendation(_currentRecommendation);
+  }
+
+  Color _getColorForRecommendation(String recommendation) {
     if (recommendation.contains('🚨')) {
       return Colors.red;
     }
@@ -282,6 +311,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return 'Ayer';
     }
     return DateFormat('d/MM').format(dt);
+  }
+
+  // Mostrar información de la planta usando IA
+  Future<void> _showPlantInfo(String plantName) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return FutureBuilder<String>(
+          future: _plantAIService.getPlantInfo(plantName),
+          builder: (context, snapshot) {
+            return AlertDialog(
+              title: Row(
+                children: [
+                  const Icon(Icons.psychology,
+                      color: Color.fromARGB(255, 76, 175, 80)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Información de $plantName',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: snapshot.connectionState == ConnectionState.waiting
+                    ? const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(
+                            color: Color.fromARGB(255, 76, 175, 80),
+                          ),
+                          SizedBox(height: 16),
+                          Text('Consultando información...'),
+                        ],
+                      )
+                    : snapshot.hasError
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  size: 48, color: Colors.red),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Error: ${snapshot.error}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          )
+                        : SingleChildScrollView(
+                            child: Text(
+                              snapshot.data ?? 'No se encontró información',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cerrar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -449,6 +548,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   color: Colors.grey),
                               textAlign: TextAlign.center,
                             ),
+                          const SizedBox(height: 12),
+                          // Botón de IA para información de la planta
+                          ElevatedButton.icon(
+                            onPressed: () =>
+                                _showPlantInfo(_selectedPlant!.name),
+                            icon: const Icon(Icons.psychology, size: 20),
+                            label: const Text('Saber de esta planta'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 76, 175, 80),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -548,41 +667,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ));
   }
 
-  void _linkDevice() async {
-    if (_selectedPlant == null) return;
-    try {
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const QRScannerScreen()),
-      );
-
-      if (result != null) {
-        await _materoService.linkDeviceToPlant(_selectedPlant!.id!, result);
-        if (mounted) {
-          _showTopNotification(
-              "✅ Vinculado al dispositivo: $result", Colors.green);
-          _loadPlants(); // Recargar para actualizar el device_id de la planta seleccionada
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        _showTopNotification("❌ Error vinculando: $e", Colors.red);
-      }
-    }
-  }
-
   // ... (existing methods)
 
   // StreamBuilder para datos en tiempo real
   Widget _buildSensorDataCard() {
     return StreamBuilder<SensorReading?>(
-      stream: _materoService.getRealtimeData(_selectedPlant!.deviceId),
+      stream: _materoService.getRealtimeData(),
       builder: (context, snapshot) {
         final bool isLoading =
             snapshot.connectionState == ConnectionState.waiting;
 
         if (snapshot.hasData && snapshot.data != null) {
-          _currentSensorData = snapshot.data;
+          final newSensorData = snapshot.data;
+          if (newSensorData != null) {
+            // Calcular nueva recomendación
+            final newRecommendation = _materoService.getRecommendation(
+              newSensorData.soilMoisture,
+              newSensorData.temperature,
+            );
+
+            // Si la recomendación cambió, mostrar notificación NATIVA
+            if (_previousRecommendation != null &&
+                _previousRecommendation != newRecommendation) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                // Determinar prioridad basada en el tipo de recomendación
+                String priority = 'medium';
+                if (newRecommendation.contains('🚨')) {
+                  priority = 'high';
+                } else if (newRecommendation.contains('✅')) {
+                  priority = 'low';
+                }
+
+                _notificationService.showRecommendationNotification(
+                  recommendation: newRecommendation,
+                  priority: priority,
+                );
+              });
+            }
+
+            _previousRecommendation = newRecommendation;
+            _currentSensorData = newSensorData;
+          }
         }
 
         return Card(
@@ -623,30 +748,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                if (_selectedPlant!.deviceId == null) ...[
-                  Column(
-                    children: [
-                      const Icon(Icons.link_off,
-                          size: 40, color: Colors.orange),
-                      const SizedBox(height: 10),
-                      const Text(
-                        'Planta no vinculada a un Matero',
-                        style: TextStyle(
-                            color: Colors.grey, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: _linkDevice,
-                        icon: const Icon(Icons.qr_code_scanner),
-                        label: const Text('Vincular Matero'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    ],
-                  )
-                ] else if (_currentSensorData != null) ...[
+                if (_currentSensorData != null) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
